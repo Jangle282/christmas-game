@@ -2,12 +2,16 @@ body {
 
 }
 
-h1 {
+p {
   color: red;
+  margin: 0
 }
 
 .canvas-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 120px;
+}
+
+.btn {
+
 }
