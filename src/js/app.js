@@ -11,20 +11,25 @@ function getUsers() {
   });
 }
 
-getUsers();
+
+window.onload = function() {
+
+  getUsers();
 
 
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
+  var canvas = document.getElementById("myCanvas");
+  var ctx = canvas.getContext("2d");
 
-const ru = new Rudolf(100,100)
-const sprout = new Sprout(200, 200)
-const present = new Present(300, 300)
+  const ru = new Rudolf(100,100)
+  const sprout = new Sprout(200, 200)
+  const present = new Present(300, 300)
 
-ctx.beginPath();
-ctx.rect(ru.x, ru.y, 50, 50);
-ctx.rect(sprout.x, sprout.y, 50, 50);
-ctx.rect(present.x, present.y, 50, 50);
-ctx.fillStyle = "#FF0000";
-ctx.fill();
-ctx.closePath();
+  ctx.beginPath();
+  ctx.rect(ru.x, ru.y, 50, 50);
+  ctx.rect(sprout.x, sprout.y, 50, 50);
+  ctx.rect(present.x, present.y, 50, 50);
+  ctx.fillStyle = "#FF0000";
+  ctx.fill();
+  ctx.closePath();
+
+}
