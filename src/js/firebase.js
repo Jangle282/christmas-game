@@ -1,4 +1,4 @@
-var firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyCRFGDUCA_U7lyGtLlcQ_0zheXXfQ19IFs",
   authDomain: "christmas-game-dcc48.firebaseapp.com",
   projectId: "christmas-game-dcc48",
@@ -10,4 +10,4 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-const db = firebase.firestore();
+export const db = firebase.firestore();
