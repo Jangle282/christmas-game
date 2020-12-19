@@ -1,18 +1,18 @@
 import {ctx} from '../canvas.js';
 
 export class Sprout {
-    constructor(x,y, orientation = 90) {
+    constructor(x,y, dimension = 10, image) {
         this.originalX = x
         this.originalY = y
-        this.orientation = orientation;
+        this.dimension = dimension;
         this.x = x;
         this.y = y;
         this.dx = -1;
         this.dy = -1;
+        this.image = image
     }
 
     reset() {
-        this.orientation = this.originalOrientation;
         this.x = this.originalX;
         this.y = this.originalY;
         this.dx = -1;
@@ -20,11 +20,14 @@ export class Sprout {
     }
 
     draw() {
-        ctx.beginPath();
-        ctx.rect(this.x, this.y, 50, 50);
-        ctx.fillStyle = "green";
-        ctx.fill();
-        ctx.closePath();
+        ctx.drawImage(this.image, this.x, this.y )
+
+
+        // ctx.beginPath();
+        // ctx.rect(this.x, this.y, this.dimension, this.dimension);
+        // ctx.fillStyle = "green";
+        // ctx.fill();
+        // ctx.closePath();
     }
 
     move() {

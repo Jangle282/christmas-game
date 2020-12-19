@@ -1,15 +1,13 @@
 import {ctx} from '../canvas.js';
 
 export class Rudolf {
-    constructor(x = 0, y = 0, width = 50, height = 50) {
+    constructor(standingRight, flyingRight, fartRight, standingLeft, flyingLeft, fartLeft, x = 0, y = 0) {
         this.startX = x;
         this.startY = y;
         this.x = x;
         this.y = y;
-        this.dx = 1;
-        this.dy = 1;
-        this.width = width;
-        this.height = height
+        this.width = 50;
+        this.height = 50
         this.centreX = this.x + 0.5 * this.width
         this.centreY = this.y + 0.5 * this.height
         this.xFrames = 100;
@@ -19,26 +17,39 @@ export class Rudolf {
         this.targetX = 0;
         this.targetY = 0;
         this.newTarget = false
+        this.images = {
+            standing : {
+                left : standingLeft,
+                right: standingRight
+            },
+            flying : {
+                left: flyingLeft,
+                right: flyingRight
+            },
+            fart: {
+                left: fartLeft,
+                right: fartRight
+            }
+        }
+        // this.fartRight = fartRight;
+        // this.standingRight = standingRight;
+        // this.flyingRight = flyingRight
+        // this.fartLeft = fartLeft;
+        // this.standingLeft = standingLeft;
+        // this.flyingLeft = flyingLeft
+        this.direction = 'right'
     }
 
     setTargets(x, y) {
-        this.newTarget = true
-        this.targetX = x - this.width / 2;
-        this.targetY = y - this.height / 2;
-        console.log("targets", this.targetX, this.targetY)
-        ctx.strokeStyle = "blue";
-        ctx.strokeRect(this.targetX, this.targetY, 1, 1);
-
-        // this.dy = (this.targetY - this.y) / this.steps
-        // this.frame = 0;
-    }
-
-    reset() {
-        this.x = 0;
-        this.y = 0;
-        this.dx = 1;
-        this.dy = 1;
-        this.newTarget = false
+        if (!this.newTarget) {
+            this.newTarget = true
+            this.targetX = x - this.width / 2;
+            this.targetY = y - this.height / 2;
+            this.direction = this.targetX > this.x ? 'right' : 'left'
+            console.log("targets", this.targetX, this.targetY)
+            ctx.strokeStyle = "blue";
+            ctx.strokeRect(this.targetX, this.targetY, 1, 1);
+        }
     }
 
     changeX() {
@@ -91,8 +102,37 @@ export class Rudolf {
     draw() {
         console.log("drawing ru: ", this.x, this.y)
         console.log("frames ru: ", this.xFrame, this.yFrame)
-        ctx.strokeStyle = "blue";
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        let x = this.direction === 'right' ? this.x - 25 : this.x + 25;
+        if (this.newTarget) {
+            ctx.drawImage(this.images['fart'][this.direction], x, this.y)
+            ctx.drawImage(this.images['flying'][this.direction], this.x, this.y)
+        } else {
+            ctx.drawImage(this.images['standing'][this.direction], this.x, this.y)
+        }
+
+        // this.images = {
+        //     standing : {
+        //         left : standingLeft,
+        //         right: standingRight
+        //     },
+        //     flying : {
+        //         left: flyingLeft,
+        //         right: flyingRight
+        //     },
+        //     fart: {
+        //         left: fartLeft,
+        //         right: fartRight
+        //     }
+        // }
+        // ctx.drawImage(this.standingRight, this.x, this.y)
+
+        // this.fartRight = fartRight;
+        // this.standingRight = standingRight;
+        // this.flyingRight = flyingRight
+        // this.fartLeft = fartLeft;
+        // this.standingLeft = standingLeft;
+        // this.flyingLeft = flyingLeft
+
         // if (this.newTarget) {
         //     console.log("new Target: ", this.targetX - this.width/2, this.targetY - this.height/2)
         //     if (this.frame < this.frames) {
@@ -135,6 +175,7 @@ export class Rudolf {
             this.xFrame = 0
             this.yFrame = 0
             this.newTarget = false
+
         }
     }
 

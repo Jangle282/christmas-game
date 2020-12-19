@@ -1,18 +1,18 @@
 import {ctx} from '../canvas.js';
 
 export class Present {
-    constructor(x,y, orientation = 270) {
+    constructor(x,y, dimension = 10, image) {
         this.originalX = x;
         this.originalY = y;
-        this.orientation = orientation;
+        this.dimension = dimension;
         this.x = x;
         this.y = y;
         this.dx = 2;
         this.dy = 2;
+        this.image = image;
     }
 
     reset() {
-        this.orientation =  90;
         this.x =  this.originalX;
         this.y =  this.originalY;
         this.dx = 2;
@@ -20,11 +20,8 @@ export class Present {
     }
 
     draw() {
-        ctx.beginPath();
-        ctx.rect(this.x, this.y, 50, 50);
-        ctx.fillStyle = "yellow";
-        ctx.fill();
-        ctx.closePath();
+        ctx.drawImage(this.image, this.x, this.y)
+
     }
 
     move() {

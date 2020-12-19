@@ -1,16 +1,33 @@
 import {ctx, canvas} from './canvas.js';
 import {Rudolf} from './Models/Rudolf.js';
+import {Sprout} from './Models/Sprout.js';
+import {Present} from './Models/Present.js';
 
-const ru = new Rudolf()
+let ru;
+let sproutCount = 8;
+let presentCount = 8;
+let sprouts = [];
+let presents = [];
 let play = false;
 let interval;
-const startButton = document.getElementById('startBtn')
-const resetButton = document.getElementById('resetBtn')
-const stopButton = document.getElementById('stopBtn')
+const startButton = document.getElementById('startBtn');
+const resetButton = document.getElementById('resetBtn');
+const stopButton = document.getElementById('stopBtn');
 let canvasOriginX;
 let canvasOriginY;
 let touchX;
 let touchY;
+let canvasWidth = 350;
+let canvasHeight = 600;
+let sproutImage;
+let presentImage;
+let rudolfRight;
+let rudolfLeft;
+let rudolfFartRight;
+let rudolfFartLeft;
+let fartRight;
+let fartLeft;
+
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -18,7 +35,21 @@ function clearCanvas() {
 
 function draw() {
     ru.draw()
+    drawSprouts()
+    drawPresents()
     drawTouch()
+}
+
+function drawSprouts() {
+    sprouts.forEach((sprout) => {
+        sprout.draw();
+    })
+}
+
+function drawPresents() {
+    presents.forEach((present) => {
+        present.draw();
+    })
 }
 
 function update() {
@@ -36,7 +67,7 @@ function startInterval() {
         play = true
         interval = setInterval(() => {
             playGame()
-        }, 20);
+        }, 10);
     }
 }
 
@@ -49,7 +80,7 @@ function stopInterval() {
 
 function stopAndReset() {
     stopInterval();
-    ru.reset();
+    createElements()
     clearCanvas()
     draw()
 }
@@ -66,7 +97,60 @@ function drawTouch() {
     ctx.strokeRect(touchX, touchY, 1, 1)
 }
 
+function createElements() {
+    sprouts = []
+    presents = []
+    ru = new Rudolf(
+        rudolfRight,
+        rudolfFartRight,
+        fartRight,
+        rudolfLeft,
+        rudolfFartLeft,
+        fartLeft
+    );
+    let sproutDim = 20
+    for (let i = 0; i < sproutCount; i++) {
+        let x = Math.floor(Math.random()*(canvasWidth - sproutDim))
+        let y = Math.floor(Math.random()*(canvasHeight - sproutDim))
+        sprouts.push(new Sprout(x, y, sproutDim, sproutImage))
+    }
+    let presentDim = 20
+    for (let i = 0; i < presentCount; i++) {
+        let x = Math.floor(Math.random()*(canvasWidth - presentDim))
+        let y = Math.floor(Math.random()*(canvasHeight - presentDim))
+        presents.push(new Present(x, y, presentDim, presentImage))
+    }
+}
+
+function loadImages() {
+    sproutImage = new Image();
+    sproutImage.src = './assets/sprout.png'
+
+    presentImage = new Image();
+    presentImage.src = './assets/present.png'
+
+    rudolfFartRight = new Image();
+    rudolfFartRight.src = './assets/rudolfFartRight.png'
+
+    rudolfFartLeft = new Image();
+    rudolfFartLeft.src = './assets/rudolfFartLeft.png'
+
+    rudolfLeft = new Image();
+    rudolfLeft.src = './assets/rudolfLeft.png'
+
+    rudolfRight = new Image();
+    rudolfRight.src = './assets/rudolfRight.png'
+
+    fartRight = new Image();
+    fartRight.src = './assets/fartRight.png'
+
+    fartLeft = new Image();
+    fartLeft.src = './assets/fartLeft.png'
+}
+
 window.onload = function () {
+    loadImages()
+    createElements()
     console.log("on load")
     startButton.addEventListener("click", () => {startInterval()});
     resetButton.addEventListener("click", () => {stopAndReset()});
@@ -79,6 +163,7 @@ window.onload = function () {
         drawTouch()
     });
     ru.draw()
+    startInterval();
 }
 
 
@@ -94,8 +179,7 @@ window.onload = function () {
 //
 // let fartInterval
 
-// const sprout = new Sprout(200, 200)
-// const present = new Present(250, 250)
+
 // const startButton = document.getElementById('startBtn')
 // const resetButton = document.getElementById('resetBtn')
 // const stopButton = document.getElementById('stopBtn')
