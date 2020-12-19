@@ -19,6 +19,7 @@ let touchX;
 let touchY;
 let canvasWidth = 350;
 let canvasHeight = 600;
+//images
 let sproutImage;
 let presentImage;
 let rudolfRight;
@@ -27,13 +28,19 @@ let rudolfFartRight;
 let rudolfFartLeft;
 let fartRight;
 let fartLeft;
+let background
 
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+function drawBackground() {
+    ctx.drawImage(background, 0,0)
+}
+
 function draw() {
+    drawBackground()
     ru.draw()
     drawSprouts()
     drawPresents()
@@ -123,6 +130,9 @@ function createElements() {
 }
 
 function loadImages() {
+    background = new Image()
+    background.src = './assets/background.png'
+
     sproutImage = new Image();
     sproutImage.src = './assets/sprout.png'
 
