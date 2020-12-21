@@ -1,3 +1,4 @@
+// import {getUsers} from "./firebase.js";
 import {ctx, canvas} from './canvas.js';
 import {Rudolf} from './Models/Rudolf.js';
 import {Sprout} from './Models/Sprout.js';
@@ -13,6 +14,7 @@ let interval;
 const startButton = document.getElementById('startBtn');
 const resetButton = document.getElementById('resetBtn');
 const stopButton = document.getElementById('stopBtn');
+const wrapper = document.getElementById('main-wrapper');
 let canvasOriginX;
 let canvasOriginY;
 let touchX;
@@ -87,7 +89,7 @@ function stopInterval() {
 
 function stopAndReset() {
     stopInterval();
-    createElements()
+    createCanvasElements()
     clearCanvas()
     draw()
 }
@@ -97,6 +99,7 @@ function setCanvasOriginPoints() {
     const canvasBoundingRect = canvas.getBoundingClientRect()
     canvasOriginX = canvasBoundingRect.x;
     canvasOriginY = canvasBoundingRect.y;
+    console.log(canvasOriginX, canvasOriginY)
 }
 
 function drawTouch() {
@@ -104,7 +107,7 @@ function drawTouch() {
     ctx.strokeRect(touchX, touchY, 1, 1)
 }
 
-function createElements() {
+function createCanvasElements() {
     sprouts = []
     presents = []
     ru = new Rudolf(
@@ -158,22 +161,37 @@ function loadImages() {
     fartLeft.src = './assets/fartLeft.png'
 }
 
+
+
 window.onload = function () {
-    loadImages()
-    createElements()
     console.log("on load")
+    loadImages()
+    createCanvasElements()
+    draw()
+
     startButton.addEventListener("click", () => {startInterval()});
-    resetButton.addEventListener("click", () => {stopAndReset()});
     stopButton.addEventListener("click", () => {stopInterval()});
-    setCanvasOriginPoints()
+    // resetButton.addEventListener("click", () => {stopAndReset()});
+
+    // create "routing"
+    wrapper.addEventListener('click', (e) => {
+        console.log(e)
+        if (e.target.nodeName === 'BUTTON') {
+            document.getElementById(e.target.value).style.display = ''
+            e.target.closest("div[id^='wrapper']").style.display = 'none';
+            if (e.target.value === 'wrapper-game') {
+                setCanvasOriginPoints()
+            }
+        }
+    })
     canvas.addEventListener("touchstart", (e) => {
-        touchX = e.changedTouches[0].pageX - canvasOriginX
-        touchY = e.changedTouches[0].pageY - canvasOriginY
-        ru.setTargets(touchX, touchY)
-        drawTouch()
+        if (play) {
+            touchX = e.changedTouches[0].pageX - canvasOriginX
+            touchY = e.changedTouches[0].pageY - canvasOriginY
+            ru.setTarget(touchX, touchY)
+            drawTouch()
+        }
     });
-    ru.draw()
-    startInterval();
 }
 
 

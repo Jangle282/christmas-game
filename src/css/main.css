@@ -15,3 +15,11 @@ p {
 .btn {
 
 }
+
+
+.game-top-bar {
+  display: flex;
+  flex-flow: row;
+  flex-wrap: nowrap;
+
+}
