@@ -1,25 +1,76 @@
-body {
-
+html, body {
+    height: 100%
 }
 
-p {
-  color: red;
-  margin: 0
+body {
+    width: 100%;
+    margin: 0;
+    font-family: "courier new", monospace;
+}
+
+#main-wrapper {
+    height: 100%;
+    /*background-color: #89c6b4;*/
+}
+
+#wrapper-home {
+    height: 100%;
+    background-size: cover;
+    margin: 0 auto;
+    max-width: 670px;
+    background-position: center;
+}
+
+.home-form {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    padding-top: 180px;
+    text-align: center;
+}
+
+.home-form > input[type=text] {
+    margin-bottom: 250px;
+    font-family: "courier new", monospace;
+}
+
+.home-form > input[type=text]:focus {
+    outline: none
+}
+
+.home-form > input[type=submit] {
+    width: 100px;
+    line-height: 2;
+}
+
+#wrapper-game {
 }
 
 .canvas-wrapper {
-  display: flex;
-  justify-content: center;
-}
-
-.btn {
-
+    display: flex;
+    justify-content: center;
 }
 
 
 .game-top-bar {
-  display: flex;
-  flex-flow: row;
-  flex-wrap: nowrap;
+    display: flex;
+    flex-flow: row;
+    flex-wrap: nowrap;
+}
+
+#game-overlay {
+    background-color: rgba(200, 200, 200, 0.6);
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-flow:column;
+    align-items: center;
+    padding-top: 200px;
+    text-align: center;
+}
+
+
+.btn {
 
 }

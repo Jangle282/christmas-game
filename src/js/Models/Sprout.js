@@ -1,7 +1,7 @@
 import {ctx} from '../canvas.js';
 
 export class Sprout {
-    constructor(x,y, dimension = 10, image) {
+    constructor(x, y, dimension = 10, image) {
         this.originalX = x
         this.originalY = y
         this.dimension = dimension;
@@ -9,7 +9,8 @@ export class Sprout {
         this.y = y;
         this.dx = -1;
         this.dy = -1;
-        this.image = image
+        this.image = image;
+        this.eaten = false;
     }
 
     reset() {
@@ -19,8 +20,21 @@ export class Sprout {
         this.dy = -1;
     }
 
+    doesIntersectWithRudolf(ruX, ruY, ruWidth, ruHeight) {
+        //define border for rudolf and sprout and check if any overlap
+        let [ruTop, ruBottom, ruLeft, ruRight] = [ruY, ruY + ruHeight, ruX, ruX + ruWidth]
+        let [sprTop, sprBottom, sprLeft, sprRight] = [this.y, this.y + this.dimension, this.x, this.x + this.dimension]
+        if (!(ruRight < sprLeft || ruBottom < sprTop || ruLeft > sprRight || ruTop > sprBottom)) {
+            this.eaten = true
+            return true
+        }
+        return false
+    }
+
     draw() {
-        ctx.drawImage(this.image, this.x, this.y )
+        if (!this.eaten) {
+            ctx.drawImage(this.image, this.x, this.y)
+        }
 
 
         // ctx.beginPath();

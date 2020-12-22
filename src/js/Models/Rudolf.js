@@ -1,7 +1,7 @@
 import {ctx} from '../canvas.js';
 
 export class Rudolf {
-    constructor(standingRight, flyingRight, fartRight, standingLeft, flyingLeft, fartLeft, x = 150, y = 285) {
+    constructor(standingRight, flyingRight, fartRight, standingLeft, flyingLeft, fartLeft, startGasVolume, x = 150, y = 285) {
         this.startX = x;
         this.startY = y;
         this.x = x;
@@ -32,20 +32,46 @@ export class Rudolf {
             }
         }
         this.direction = 'right';
-        this.gasVolume = 10000;
-        this.gasPower = 100;
+        this.gasPower = 200;
+        this.sproutGas = 100;
+        // player Stats
+        this.presentCount = 0;
+        this.gasVolume = startGasVolume;
+    }
+
+    getGasVolume() {
+        return this.gasVolume;
+    }
+
+    getCoords(){
+        return [this.x, this.y, this.width, this.height]
+    }
+
+    increaseGasMeter() {
+        this.gasVolume += this.sproutGas
+        this.updateGasMeter()
     }
 
     updateGasMeter() {
         const gasMeter = document.getElementById('gas-meter');
         // return this.gasVolume;
-        gasMeter.innerHTML= `Gas: ${this.gasVolume}`;
+        gasMeter.innerHTML= `Gas: ${this.gasVolume > 0 ? this.gasVolume : 0 }`;
+    }
+
+    increasePresentCount(){
+        this.presentCount++
+        this.updatePresentCountDisplay()
+    }
+
+    updatePresentCountDisplay() {
+        const presentCount = document.getElementById('present-count');
+        presentCount.innerHTML= `Presents Collected: ${this.presentCount}`;
     }
 
     setTarget(x, y) {
-        console.log("x and y", x,y )
-        console.log("thisxy", this.x,this.y )
-        if (!this.isMoving) {
+        // console.log("x and y", x,y )
+        // console.log("thisxy", this.x,this.y )
+        if (!this.isMoving && this.gasVolume > 0) {
             this.direction = x > this.x + 0.5*this.width ? 'right' : 'left'
             let directionX = x > this.x ? 1 : -1
             let directionY = y > this.y ? 1 : -1
@@ -55,34 +81,34 @@ export class Rudolf {
             let ty =  y - this.y - this.height*0.5;
             // use pythag to get the direct distance to the touch
             let hypotenuseToTouch = Math.sqrt((tx**2 + ty**2))
-            console.log("hyp", hypotenuseToTouch)
+            // console.log("hyp", hypotenuseToTouch)
             if (hypotenuseToTouch > this.gasPower) {
                 // if it is further than the gaspower allows. Restrict the targets to the maximum
                 // get the angle
                 let angleToTouch = Math.atan((ty/tx))
-                console.log("angle", angleToTouch)
+                // console.log("angle", angleToTouch)
                 // find mx using cos
                 let mx = Math.cos(angleToTouch) * this.gasPower
-                console.log("cos of angle",  Math.cos(angleToTouch));
+                // console.log("cos of angle",  Math.cos(angleToTouch));
                 // find my with pythag
                 let my = Math.sqrt((this.gasPower**2 - mx**2))
                 // console.log("target restricted1:", mx, my);
                 // adjust for image
                 this.targetX = this.x + mx*directionX
                 this.targetY = this.y + my*directionY
-                this.gasVolume -= this.gasPower;
+                this.gasVolume = this.gasVolume > this.sproutGas ? this.gasVolume - this.sproutGas : 0;
                 this.updateGasMeter()
-                console.log("target restricted", this.targetX, this.targetY);
+                // console.log("target restricted", this.targetX, this.targetY);
             } else {
                 // set the target as the touchpoint. Adjust for image
                 this.targetX = x - this.width*0.5;
                 this.targetY = y - this.height*0.5
-                this.gasVolume -= Math.floor(hypotenuseToTouch);
+                this.gasVolume -= this.sproutGas;
                 this.updateGasMeter()
-                console.log("target within", this.targetX, this.targetY);
+                // console.log("target within", this.targetX, this.targetY);
             }
 
-            console.log("direction", this.direction)
+            // console.log("direction", this.direction)
             // console.log("targets", this.targetX, this.targetY)
             ctx.strokeStyle = "blue";
             ctx.strokeRect(this.targetX, this.targetY, 1, 1);
