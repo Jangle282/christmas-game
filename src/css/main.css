@@ -30,8 +30,12 @@ body {
 }
 
 .home-form > input[type=text] {
-    margin-bottom: 250px;
     font-family: "courier new", monospace;
+}
+
+.home-form > h6 {
+    color: red;
+    margin-top: 10px
 }
 
 .home-form > input[type=text]:focus {
@@ -41,6 +45,7 @@ body {
 .home-form > input[type=submit] {
     width: 100px;
     line-height: 2;
+    margin-top: 250px;
 }
 
 #wrapper-game {
@@ -50,7 +55,6 @@ body {
     display: flex;
     justify-content: center;
 }
-
 
 .game-top-bar {
     display: flex;
@@ -70,6 +74,21 @@ body {
     text-align: center;
 }
 
+#wrapper-leaderboard {
+    text-align: center;
+}
+
+#table-wrapper {
+
+}
+
+table {
+    margin: 0 auto 30px;
+}
+
+th, td {
+    padding: 5px
+}
 
 .btn {
 

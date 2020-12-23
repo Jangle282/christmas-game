@@ -98,20 +98,22 @@ export class Rudolf {
                 this.targetY = this.y + my*directionY
                 this.gasVolume = this.gasVolume > this.sproutGas ? this.gasVolume - this.sproutGas : 0;
                 this.updateGasMeter()
+                return 'long'
                 // console.log("target restricted", this.targetX, this.targetY);
             } else {
                 // set the target as the touchpoint. Adjust for image
                 this.targetX = x - this.width*0.5;
                 this.targetY = y - this.height*0.5
-                this.gasVolume -= this.sproutGas;
+                this.gasVolume = this.gasVolume > this.sproutGas ? this.gasVolume - this.sproutGas : 0;
                 this.updateGasMeter()
+                return 'short'
                 // console.log("target within", this.targetX, this.targetY);
             }
 
             // console.log("direction", this.direction)
             // console.log("targets", this.targetX, this.targetY)
-            ctx.strokeStyle = "blue";
-            ctx.strokeRect(this.targetX, this.targetY, 1, 1);
+            // ctx.strokeStyle = "blue";
+            // ctx.strokeRect(this.targetX, this.targetY, 1, 1);
         }
     }
 
