@@ -12,42 +12,26 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
 
-let playerRef
 export let leaderboardStats = [];
 
 export function getLeaderboard() {
     console.log("get leaderboard")
-    db.collection("users").orderBy('level', 'desc').orderBy('gas_used').limit(10).get().then((querySnapshot) => {
+    return db.collection("users").orderBy('level', 'desc').orderBy('gas_used').limit(10).get().then((querySnapshot) => {
         leaderboardStats = [];
         querySnapshot.forEach((doc) => {
             leaderboardStats.push(doc.data())
         });
         console.log("leaderboard retrieved", leaderboardStats)
+        return true;
     });
 }
 
-export function savePlayer(name) {
+export function savePlayer(player) {
     console.log("save player")
-    db.collection("users").add({
-        name: name,
-        gas_used: 0,
-        level: 1,
-        finished: false
-    }).then((docRef) => {
-        playerRef = docRef
+    return db.collection("users").add(player).then(() => {
         console.log("player saved")
+        return getLeaderboard()
     }).catch((error) => {
         console.error("Error adding document: ", error);
     });
-}
-
-export function updatePlayer(data) {
-    console.log("update player")
-    playerRef.update(data).then(() => {
-        getLeaderboard()
-        console.log("player updated");
-    }).catch(function (error) {
-        console.error("Error updating document: ", error);
-    });
-
 }

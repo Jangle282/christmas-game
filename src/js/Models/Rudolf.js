@@ -8,8 +8,6 @@ export class Rudolf {
         this.y = y;
         this.width = 50;
         this.height = 50
-        this.centreX = this.x + 0.5 * this.width
-        this.centreY = this.y + 0.5 * this.height
         this.xFrames = 100;
         this.xFrame = 0;
         this.yFrames = 100;
@@ -33,7 +31,7 @@ export class Rudolf {
         }
         this.direction = 'right';
         this.gasPower = 200;
-        this.sproutGas = 100;
+        this.sproutGas = 1;
         // player Stats
         this.presentCount = 0;
         this.gasVolume = startGasVolume;
@@ -49,13 +47,32 @@ export class Rudolf {
 
     increaseGasMeter() {
         this.gasVolume += this.sproutGas
-        this.updateGasMeter()
+        this.updateGasMeter('add')
     }
 
-    updateGasMeter() {
-        const gasMeter = document.getElementById('gas-meter');
-        // return this.gasVolume;
+    updateGasMeter(change) {
+        console.log("updategas meter: ", change)
+        const gasMeter = document.getElementById('js-gas-meter');
         gasMeter.innerHTML= `Gas: ${this.gasVolume > 0 ? this.gasVolume : 0 }`;
+
+        const gasChange = document.getElementById('js-gas-change');
+
+        // if (change && change === 'remove') {
+        //     gasChange.style.color = 'red';
+        //     gasChange.innerHTML= '- 1';
+        // }
+
+        if (change && change === 'add') {
+            gasChange.innerHTML= '';
+            gasChange.style.color = 'green';
+            gasChange.innerHTML= '+ 1';
+        }
+
+        if (change && change === 'hide') {
+            gasChange.style.color = 'white';
+        }
+
+
     }
 
     increasePresentCount(){
@@ -63,9 +80,20 @@ export class Rudolf {
         this.updatePresentCountDisplay()
     }
 
-    updatePresentCountDisplay() {
-        const presentCount = document.getElementById('present-count');
-        presentCount.innerHTML= `Presents Collected: ${this.presentCount}`;
+    updatePresentCountDisplay(change) {
+        console.log("update present count: ")
+        const presentCount = document.getElementById('js-present-count');
+        presentCount.innerHTML= `Presents: ${this.presentCount}`;
+
+        const presentChange = document.getElementById('js-present-change');
+
+        presentChange.style.color = 'green'
+        presentChange.innerHTML = '+ 1'
+
+        let flashInterval = setInterval(() => {
+            presentChange.style.color = 'white';
+            clearInterval(flashInterval)
+        }, 500)
     }
 
     setTarget(x, y) {
@@ -97,7 +125,7 @@ export class Rudolf {
                 this.targetX = this.x + mx*directionX
                 this.targetY = this.y + my*directionY
                 this.gasVolume = this.gasVolume > this.sproutGas ? this.gasVolume - this.sproutGas : 0;
-                this.updateGasMeter()
+                this.updateGasMeter('remove')
                 return 'long'
                 // console.log("target restricted", this.targetX, this.targetY);
             } else {
@@ -105,7 +133,7 @@ export class Rudolf {
                 this.targetX = x - this.width*0.5;
                 this.targetY = y - this.height*0.5
                 this.gasVolume = this.gasVolume > this.sproutGas ? this.gasVolume - this.sproutGas : 0;
-                this.updateGasMeter()
+                this.updateGasMeter('remove')
                 return 'short'
                 // console.log("target within", this.targetX, this.targetY);
             }
@@ -161,110 +189,12 @@ export class Rudolf {
             this.xFrame = 0;
             this.yFrame = 0;
             this.isMoving = false;
+            let gaugeInterval = setInterval(() => {
+                console.log("guage interval")
+                this.updateGasMeter('hide')
+                clearInterval(gaugeInterval)
+            },700)
+
         }
     }
-
-    rotate(rotation) {
-        ctx.save()
-        ctx.translate(this.centreX, this.centreY);
-        ctx.rotate(rotation);
-        ctx.translate(-this.centreX, -this.centreY)
-        ctx.restore()
-    }
 }
-
-
-
-// this.images = {
-//     standing : {
-//         left : standingLeft,
-//         right: standingRight
-//     },
-//     flying : {
-//         left: flyingLeft,
-//         right: flyingRight
-//     },
-//     fart: {
-//         left: fartLeft,
-//         right: fartRight
-//     }
-// }
-// ctx.drawImage(this.standingRight, this.x, this.y)
-
-// this.fartRight = fartRight;
-// this.standingRight = standingRight;
-// this.flyingRight = flyingRight
-// this.fartLeft = fartLeft;
-// this.standingLeft = standingLeft;
-// this.flyingLeft = flyingLeft
-
-// if (this.newTarget) {
-//     console.log("new Target: ", this.targetX - this.width/2, this.targetY - this.height/2)
-//     if (this.frame < this.frames) {
-//         // console.log("frame less than", this.frame)
-//         ctx.strokeStyle = "blue";
-//         console.log("X", this.moveX())
-//         console.log("Y", this.moveY())
-//         ctx.strokeRect(this.moveX(), this.moveY(), this.width, this.height);
-//         this.frame += 1;
-//         // window.requestAnimationFrame(drawCanvas);
-//         // window.requestAnimationFrame(addImage.bind(null, params))
-//     } else {
-//         // console.log("else")
-//         this.x = this.targetX - this.width / 2;
-//         this.y = this.targetY - this.height / 2;
-//         this.newTarget = false
-//         // ctx.strokeStyle = "blue"
-//         // ctx.strokeRect(this.x, this.y, this.width, this.height)
-//     }
-// } else {
-//     ctx.strokeStyle = "red"
-//     ctx.strokeRect(this.x, this.y, this.width, this.height)
-// }
-
-// console.log("thisX: ", this.x)
-// console.log("thisY: ", this.y)
-// console.log("targetx: ", this.targetX)
-// console.log("targety: ", this.targetY)
-
-
-// draw image at correct rotation
-// ctx.save()
-// ctx.translate(this.centreX, this.centreY);
-// ctx.rotate(rotation);
-// ctx.translate(-this.centreX, -this.centreY)
-
-// ctx.restore()
-
-// move() {
-//     this.x += this.dx;
-//     this.y += this.dy;
-// }
-
-// let currentXFrame = this.xFrame / (this.xFrames/2)
-// let distance = this.targetX - this.startX
-// if (currentXFrame < 1) {
-//     this.x = (distance/2)*(Math.pow(currentXFrame, 3)) + this.startX;
-// }
-// currentXFrame -= 2;
-// this.x = distance/2*(Math.pow(currentXFrame,3)+2) + this.startX
-// set what dx shoudl be - to get a nice animation this needs to be different according to the
-// this.dx = (this.targetX - this.x) / this.steps
-// this.x += this.dx;
-// let distance = this.targetX - this.width / 2 - this.x;
-// let steps = this.frames;
-// let progress = this.frame;
-// return distance / steps * progress;
-
-// let currentYFrame = this.yFrame / (this.yFrames/2)
-// let distance = this.targetY - this.startY
-// if (currentYFrame < 1) {
-//     this.y = (distance/2)*(Math.pow(currentYFrame, 3)) + this.startY;
-// }
-// currentYFrame -= 2;
-// this.y = distance/2*(Math.pow(currentYFrame,3)+2) + this.startY
-// this.y += this.dy;
-// let distance = this.targetY - this.height / 2 - this.y;
-// let steps = this.frames;
-// let progress = this.frame;
-// return distance / steps * progress;

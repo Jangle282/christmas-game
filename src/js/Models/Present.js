@@ -13,13 +13,6 @@ export class Present {
         this.collected = false;
     }
 
-    reset() {
-        this.x =  this.originalX;
-        this.y =  this.originalY;
-        this.dx = 2;
-        this.dy = 2;
-    }
-
     doesIntersectWithRudolf(ruX, ruY, ruWidth, ruHeight) {
         //define border for rudolf and sprout and check if any overlap
         let [ruTop, ruBottom, ruLeft, ruRight] = [ruY, ruY + ruHeight, ruX, ruX + ruWidth]
@@ -36,10 +29,5 @@ export class Present {
             ctx.drawImage(this.image, this.x, this.y)
         }
 
-    }
-
-    move() {
-        this.x += this.dx;
-        this.y += this.dy;
     }
 }

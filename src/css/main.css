@@ -10,6 +10,7 @@ body {
 
 #main-wrapper {
     height: 100%;
+    overflow-x: hidden;
     /*background-color: #89c6b4;*/
 }
 
@@ -25,8 +26,9 @@ body {
     display: flex;
     flex-flow: column;
     align-items: center;
-    padding-top: 180px;
+    justify-content: space-evenly;
     text-align: center;
+    height: 100%;
 }
 
 .home-form > input[type=text] {
@@ -45,7 +47,6 @@ body {
 .home-form > input[type=submit] {
     width: 100px;
     line-height: 2;
-    margin-top: 250px;
 }
 
 #wrapper-game {
@@ -58,20 +59,29 @@ body {
 
 .game-top-bar {
     display: flex;
-    flex-flow: row;
-    flex-wrap: nowrap;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 6px;
 }
 
 #game-overlay {
-    background-color: rgba(200, 200, 200, 0.6);
+    background-color: rgba(156, 185, 138, 0.8);
     position: fixed;
     height: 100%;
-    width: 100%;
+    width: 100vw;
     display: flex;
     flex-flow:column;
     align-items: center;
-    padding-top: 200px;
+    padding: 30px 14px 0;
     text-align: center;
+    box-sizing: border-box;
+    justify-content: space-evenly;
+}
+
+#game-overlay > h3 {
+    margin: 10px 0;
 }
 
 #wrapper-leaderboard {

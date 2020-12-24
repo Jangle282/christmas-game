@@ -29,28 +29,30 @@
 
     <div id="wrapper-game" style="display: none;">
         <div id="game-overlay">
-            <h3 id="game-overlay-text">Fritz the Reindeer, the naughty cousin of Rudolf, stole all Mrs. Klaus' sprouts.
-                They made him quite gassy, and he realised he could fly! He took Santa's sleigh for a joy-ride round the
-                North Pole. Unfortunately, he took a corner too quickly and tipped all the presents across space! Will
-                you help Fritz collect the presents in this space sector?</h3>
-            <button class="btn" id="game-overlay-btn">Start space sector: 1</button>
+            <h3 id="game-overlay-text">Rudolf's naughty cousin, Fritz, got into santa's sprout-patch!<br/><br/>
+            As you might know, reindeer LOVE sprouts, but sprouts also give reindeer a certain ... power.<br/><br/>
+            Poor Fritz got carried away and, drunk on sprout-power, went on a joy ride around the North Pole with
+                Santa's sleigh!<br/><br/>
+            BUT, he cornered too quickly and tipped all the presents across space!<br/><br/>
+            Can you help Fritz collect the presents before santa finds out!?</h3>
+            <button class="btn" id="game-overlay-btn">Start first space sector</button>
         </div>
         <div class="game-top-bar">
-            <div class="btn" id="startBtn">start Game</div>
-            <div class="btn" id="stopBtn">stopInterval</div>
-            <!--    <button class="btn" id="resetBtn">stopAndResetInterval</button>-->
-            <span id="gas-meter"></span>
-            <span id="present-count"></span>
+            <div class="gas-meter">
+                <span id="js-gas-meter">Gas: 5</span>
+                <span id="js-gas-change"></span>
+            </div>
+            <div id="present-count">
+                <span id="js-present-count">Presents: 0</span>
+                <span id="js-present-change"></span>
+            </div>
+            <div id="level-count">
+                <span id="js-level-count">Sector: 1</span>
+            </div>
         </div>
         <div class="canvas-wrapper">
-            <canvas id="myCanvas" width="350" height="600" style="border: 1px solid black"></canvas>
+            <canvas id="myCanvas" width="350" height="600"></canvas>
         </div>
-        <!--        <div id="game-over">-->
-        <!--            GameOVer-->
-        <!--            <button class="btn" value="wrapper-leaderboard">Go to leaderboard</button>-->
-        <!--        </div>-->
-
-
     </div>
 
 </div>

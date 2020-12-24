@@ -1,4 +1,4 @@
-import {savePlayer, updatePlayer, leaderboardStats, getLeaderboard} from "./firebase.js";
+import {savePlayer, leaderboardStats} from "./firebase.js";
 import {ctx, canvas} from './canvas.js';
 import {Rudolf} from './Models/Rudolf.js';
 import {Sprout} from './Models/Sprout.js';
@@ -11,17 +11,14 @@ let player = {
     finished: false,
     gas_used: 0,
 };
-let levelSproutCount = [15, 12, 10, 8, 6, 5, 4, 3, 2, 1];
+let levelSproutCount = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+let fartCount = 0
 let sproutCount = levelSproutCount[player.level - 1];
-let presentCount = 8;
+let presentCount = 1;
 let sprouts = [];
 let presents = [];
 let play = false;
 let interval;
-let playerRef = null;
-const startButton = document.getElementById('startBtn');
-const resetButton = document.getElementById('resetBtn');
-const stopButton = document.getElementById('stopBtn');
 const wrapper = document.getElementById('main-wrapper');
 let overlay = document.getElementById('game-overlay')
 const gameWrapper = document.getElementById('wrapper-game')
@@ -33,7 +30,7 @@ let touchX;
 let touchY;
 let canvasWidth = 350;
 let canvasHeight = 600;
-let startGasVolume = 500;
+let startGasVolume = 5;
 //images
 let sproutImage;
 let presentImage;
@@ -110,7 +107,7 @@ function drawPresents() {
     })
 }
 
-function update() {
+async function update() {
     // collected all presents, not completed all levels, finished movement, update level
     if (presents.length === 0 && player.level < levelSproutCount.length && !ru.isMoving) {
         player.level++
@@ -121,14 +118,18 @@ function update() {
     } else if (presents.length === 0 && player.level === levelSproutCount.length && !ru.isMoving) {
         player.finished = true
         stopInterval()
-        // set gas Used
-        updatePlayer(player)
         showOverlay('finish')
+        // set gas Used
+        overlay.lastElementChild.setAttribute('disabled', "true")
+        await savePlayer(player)
+        overlay.lastElementChild.removeAttribute('disabled')
         // run out of gas
     } else if (ru.getGasVolume() === 0 && !ru.isMoving) {
         stopInterval()
-        updatePlayer(player)
         showOverlay('lost');
+        overlay.lastElementChild.setAttribute('disabled', "true")
+        await savePlayer(player)
+        overlay.lastElementChild.removeAttribute('disabled')
     }
     ru.update()
 }
@@ -154,14 +155,6 @@ function stopInterval() {
         play = false
     }
 }
-
-function stopAndReset() {
-    stopInterval();
-    createCanvasElements()
-    clearCanvas()
-    draw()
-}
-
 
 function setCanvasOriginPoints() {
     const canvasBoundingRect = canvas.getBoundingClientRect()
@@ -280,7 +273,7 @@ function showLeaderboardData() {
     let previousTable = tableWrapper.children.length > 0 ? tableWrapper.children[0] : null;
     if (previousTable) previousTable.remove();
 
-    let tableHeaders = ['Rank', 'Name', 'Level', 'Gas Used']
+    let tableHeaders = ['Rank', 'Name', 'Sectors Cleared', 'Gas Used']
 
     const tbl = document.createElement("table");
     const tblBody = document.createElement("tbody");
@@ -319,27 +312,33 @@ function showLeaderboardData() {
 function showOverlay(type) {
     switch (type) {
         case 'level':
-            overlay.firstElementChild.innerHTML = "Nice!!! On to the next space sector"
-            overlay.lastElementChild.innerHTML = `Start space sector: ${player.level}`
+            overlay.firstElementChild.innerHTML = `Nice! You cleared this sector!<br/><br/> You have used ${fartCount} farts in total.`
+            overlay.lastElementChild.innerHTML = `Start sector ${player.level}!`
             overlay.lastElementChild.id = 'game-overlay-btn'
             break;
         case'finish':
-            overlay.firstElementChild.innerHTML = "Wow you collected allll the presents. you show off."
+            overlay.firstElementChild.innerHTML = `You're a winner baby! You collected all the presents!<br/><br/> You used ${fartCount} farts in total.`
             overlay.lastElementChild.innerHTML = 'Go to leaderboard';
             overlay.lastElementChild.id = 'game-overlay-btn-complete'
             break;
         case 'lost':
-            overlay.firstElementChild.innerHTML = "Awwwwww you're out of gas!"
-            overlay.lastElementChild.innerHTML = 'Go to leaderboard';
+            overlay.firstElementChild.innerHTML = 'Awwww snap! You ran out of gas. Try to eat more sprouts to keep your gas level up'
+            overlay.lastElementChild.innerHTML = 'See the Top-Trumpers';
             overlay.lastElementChild.id = 'game-overlay-btn-complete'
             break;
         case 're-start':
-            overlay.firstElementChild.innerHTML = "Ok here we go again"
-            overlay.lastElementChild.innerHTML = `Start space sector: ${player.level}`
+            overlay.firstElementChild.innerHTML = "OK, here we go again"
+            overlay.lastElementChild.innerHTML = `Start sector: ${player.level}`
             overlay.lastElementChild.id = 'game-overlay-btn'
             break;
     }
     overlay.style.display = '';
+}
+
+function updateLevelDisplay() {
+    let levelNode = document.getElementById('js-level-count')
+    levelNode.innerHTML = `Sector: ${player.level}`
+
 }
 
 function startNextLevel() {
@@ -347,12 +346,12 @@ function startNextLevel() {
     startInterval()
     ru.updateGasMeter()
     ru.updatePresentCountDisplay()
+    updateLevelDisplay()
 }
 
 function resetPlayer() {
     player.level = 1;
     player.finished = false;
-    savePlayer(player.name)
     createCanvasElements()
     draw()
     showOverlay('re-start')
@@ -376,31 +375,29 @@ function checkName(name) {
 
 
 window.onload = function () {
-    getLeaderboard()
+    // getLeaderboard()
     // console.log("on load")
     loadImages()
     setBackground()
-    loadAudio()
     createCanvasElements()
-    draw()
+    // draw()
+    loadAudio()
     ru.updateGasMeter()
     ru.updatePresentCountDisplay()
 
-    startButton.addEventListener("click", () => {
-        startInterval()
-    });
-    stopButton.addEventListener("click", () => {
-        stopInterval()
-    });
     // resetButton.addEventListener("click", () => {stopAndReset()});
     wrapper.addEventListener('click', (e) => {
         // console.log("event:", e)
         switch (e.target.id) {
             case 'game-overlay-btn':
-                overlay.style.display = 'none';
-                startNextLevel()
-                shortFart.play()
-                jingleBells.play()
+                document.documentElement.requestFullscreen().then(() => {
+                    overlay.style.display = 'none';
+                    startNextLevel()
+                    shortFart.play()
+                    jingleBells.play()
+                    jingleBells.loop = true
+
+                })
                 break;
             case 'game-overlay-btn-complete':
                 overlay.style.display = 'none';
@@ -408,6 +405,7 @@ window.onload = function () {
                 showLeaderboardData()
                 leaderBoardWrapper.style.display = ''
                 shortFart.play()
+                jingleBells.pause()
                 break;
             case 'leaderboard-btn':
                 gameWrapper.style.display = ''
@@ -445,169 +443,9 @@ window.onload = function () {
         if (checkName(formData.get('name'))) {
             console.log("Name OK")
             player.name = formData.get('name')
-            savePlayer(player.name)
             document.getElementById('wrapper-home').style.display = 'none'
             document.getElementById('wrapper-game').style.display = ''
             setCanvasOriginPoints()
         }
     })
-
-
-    // console.log(savePlayer())
-    // console.log(updatePlayer())
-    // console.log(getLeaderboard())
-
 }
-
-
-// import {Sprout} from './Models/Sprout.js';
-// import {Present} from './Models/Present.js';
-// import {getUsers} from "./firebase.js";
-//
-//
-// let fartInterval
-
-
-// const startButton = document.getElementById('startBtn')
-// const resetButton = document.getElementById('resetBtn')
-// const stopButton = document.getElementById('stopBtn')
-// const fartButton = document.getElementById('fartBtn')
-// let canvasOriginX;
-// let canvasOriginY;
-// let touchX = 0;
-// let touchY = 0;
-// let touchStart;
-// let touchEnd;
-// let touchAngle = 0;
-// let fart = 500;
-//
-// function clearCanvas() {
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-// }
-//
-// function drawEverything() {
-//     ru.draw()
-//     // ctx.strokeStyle = "blue"
-//     // ctx.strokeRect(touchX, touchY, 1, 1)
-//     // sprout.draw()
-//     // present.draw()
-// }
-//
-// function updateEverything() {
-//     // ru.move()
-//     // sprout.move()
-//     // present.move()
-// }
-//
-// function playGame() {
-//     clearCanvas()
-//     drawEverything()
-//     updateEverything()
-// }
-//
-// function start() {
-//     if (!play) {
-//         play = true
-//         interval = setInterval(() => {
-//             console.log("interval", ru.frame)
-//             console.log("x", ru.getX())
-//             playGame()
-//         }, 500);
-//     }
-// }
-//
-// function stop() {
-//     if (play) {
-//         clearInterval(interval);
-//         play = false
-//     }
-// }
-//
-// function resetGlobals() {
-//     touchAngle = 0
-// }
-//
-// function reset() {
-//     stop();
-//     resetGlobals()
-//     ru.reset();
-//     // sprout.reset();
-//     // present.reset();
-//     clearCanvas()
-//     drawEverything()
-// }
-//
-// function setCanvasOriginPoints() {
-//     const canvasBoundingRect = canvas.getBoundingClientRect()
-//     canvasOriginX = canvasBoundingRect.x;
-//     canvasOriginY = canvasBoundingRect.y;
-// }
-//
-// function calculateRotationAngle() {
-//     console.log("rotate")
-//     return Math.atan((touchY - ru.centreY - canvasOriginY) / (touchX - ru.centreX - canvasOriginX))
-//     // console.log("touch angle: ", touchAngle)
-//     // console.log("ru centre x", ru.centreX + canvasOriginX)
-//     // console.log("ru centre y", ru.centreY + canvasOriginY)
-//     // console.log("touch x ", touchX)
-//     // console.log("touch y ", touchY)
-// }
-//
-//
-// window.onload = function () {
-//     console.log("on load")
-//     startButton.addEventListener("click", () => {start()});
-//     resetButton.addEventListener("click", () => {reset()});
-//     stopButton.addEventListener("click", () => {stop()});
-//     // fartButton.addEventListener("click", () => {move()});
-//     setCanvasOriginPoints()
-//     canvas.addEventListener("touchstart", (e) => {
-//     //     // touchEnd = null
-//     //     // fart = false
-//     //     // start a timer that check the time since the timestamp
-//     //     // when the diff is over 250ms set fart to true to start moving
-//     //     // console.log("start", e.timeStamp)
-//         ru.setTargets(e.changedTouches[0].pageX - canvasOriginX, e.changedTouches[0].pageY - canvasOriginY)
-//
-//         ctx.strokeStyle = "blue"
-//         ctx.strokeRect(touchX, touchY, 1, 1)
-//
-//     //     touchAngle = calculateRotationAngle()
-//     //
-//     //     clearCanvas()
-//     //     ru.draw(touchAngle)
-//     //     // touchStart = Date.now()
-//     //
-//     //     // timeInterval = setInterval(() => {
-//     //     //     // console.log("1", fart)
-//     //     //     // console.log("2", Date.now(), touchStart)
-//     //     //     if ((Date.now() - touchStart) > 500 && !touchEnd) {
-//     //     //         clearInterval(timeInterval)
-//     //     //         fart = true
-//     //     //     } else {
-//     //     //         move()
-//     //     //     }
-//     //     //     // console.log("4", fart)
-//     //     // }, 10);
-//     //
-//     //
-//     });
-//     // canvas.addEventListener("touchend", (e) => {
-//     //     // console.log("end", e.timeStamp)
-//     //     // touchEnd = e.timeStamp
-//     //     // // clearInterval(timeInterval);
-//     //     // if (fart) {
-//     //     //     // move()
-//     //     // } else {
-//     //     //
-//     //     // }
-//     //     // touchX = e.changedTouches[0].pageX
-//     //     // touchY = e.changedTouches[0].pageY
-//     //     // console.log(canvasOriginX)
-//     //     // console.log(canvasOriginY)
-//     // });
-//     drawEverything();
-// }
-//
-//
-//
