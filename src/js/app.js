@@ -11,10 +11,9 @@ let player = {
     finished: false,
     gas_used: 0,
 };
-let levelSproutCount = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-let fartCount = 0
+let levelSproutCount = [15, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 let sproutCount = levelSproutCount[player.level - 1];
-let presentCount = 1;
+let presentCount = 8;
 let sprouts = [];
 let presents = [];
 let play = false;
@@ -70,14 +69,13 @@ function draw() {
     ru.draw()
     drawSprouts()
     drawPresents()
-    drawTouch()
 }
 
 function drawSprouts() {
     sprouts.forEach((sprout, index) => {
         let [x, y, width, height] = ru.getCoords();
         if (sprout.doesIntersectWithRudolf(x, y, width, height)) {
-            if (crunch.duration > 0 ) {
+            if (crunch.duration > 0) {
                 crunch.pause();
                 crunch.currentTime = 0;
             }
@@ -94,7 +92,7 @@ function drawPresents() {
     presents.forEach((present, index) => {
         let [x, y, width, height] = ru.getCoords();
         if (present.doesIntersectWithRudolf(x, y, width, height)) {
-            if (successSound.duration > 0 ) {
+            if (successSound.duration > 0) {
                 successSound.pause()
                 successSound.currentTime = 0
             }
@@ -111,15 +109,15 @@ async function update() {
     // collected all presents, not completed all levels, finished movement, update level
     if (presents.length === 0 && player.level < levelSproutCount.length && !ru.isMoving) {
         player.level++
-        // set gas Used
+        player.gas_used = player.gas_used + ru.getGasUsed()
         stopInterval()
         showOverlay('level')
         // finished all levels
     } else if (presents.length === 0 && player.level === levelSproutCount.length && !ru.isMoving) {
         player.finished = true
+        player.gas_used = player.gas_used + ru.getGasUsed()
         stopInterval()
         showOverlay('finish')
-        // set gas Used
         overlay.lastElementChild.setAttribute('disabled', "true")
         await savePlayer(player)
         overlay.lastElementChild.removeAttribute('disabled')
@@ -160,12 +158,6 @@ function setCanvasOriginPoints() {
     const canvasBoundingRect = canvas.getBoundingClientRect()
     canvasOriginX = canvasBoundingRect.x;
     canvasOriginY = canvasBoundingRect.y;
-    // console.log(canvasOriginX, canvasOriginY)
-}
-
-function drawTouch() {
-    ctx.strokeStyle = "blue"
-    ctx.strokeRect(touchX, touchY, 1, 1)
 }
 
 function createCanvasElements() {
@@ -185,13 +177,30 @@ function createCanvasElements() {
     for (let i = 0; i < sproutCount; i++) {
         let x = Math.floor(Math.random() * (canvasWidth - sproutDim))
         let y = Math.floor(Math.random() * (canvasHeight - sproutDim))
-        sprouts.push(new Sprout(x, y, sproutDim, sproutImage))
+
+        let newSprout = new Sprout(x, y, sproutDim, sproutImage)
+
+        // dont draw them where ru is initiated.
+        let [ruX, ruY, width, height] = ru.getCoords();
+        if (newSprout.doesIntersectWithRudolf(ruX, ruY, width, height)) {
+            sproutCount++
+        } else {
+            sprouts.push(newSprout)
+        }
     }
     let presentDim = 20
     for (let i = 0; i < presentCount; i++) {
         let x = Math.floor(Math.random() * (canvasWidth - presentDim))
         let y = Math.floor(Math.random() * (canvasHeight - presentDim))
-        presents.push(new Present(x, y, presentDim, presentImage))
+
+        let newPresent = new Present(x, y, presentDim, presentImage)
+
+        let [ruX, ruY, width, height] = ru.getCoords();
+        if (newPresent.doesIntersectWithRudolf(ruX, ruY, width, height)) {
+            presentCount++
+        } else {
+            presents.push(newPresent)
+        }
     }
 }
 
@@ -227,7 +236,7 @@ function loadImages() {
     fartLeft.src = './assets/fartLeft.png'
 }
 
-function loadAudio(){
+function loadAudio() {
     shortFart = new Audio();
     shortFart.src = './assets/short-fart.mp3'
 
@@ -267,13 +276,12 @@ function setBackground() {
 }
 
 function showLeaderboardData() {
-    // console.log(leaderboardStats)
     const tableWrapper = document.getElementById('table-wrapper')
 
     let previousTable = tableWrapper.children.length > 0 ? tableWrapper.children[0] : null;
     if (previousTable) previousTable.remove();
 
-    let tableHeaders = ['Rank', 'Name', 'Sectors Cleared', 'Gas Used']
+    let tableHeaders = ['Rank', 'Name', 'Sectors Cleared', 'Farts']
 
     const tbl = document.createElement("table");
     const tblBody = document.createElement("tbody");
@@ -312,17 +320,17 @@ function showLeaderboardData() {
 function showOverlay(type) {
     switch (type) {
         case 'level':
-            overlay.firstElementChild.innerHTML = `Nice! You cleared this sector!<br/><br/> You have used ${fartCount} farts in total.`
+            overlay.firstElementChild.innerHTML = `Nice! You cleared this sector!<br/><br/> You have used ${player.gas_used} farts in total.`
             overlay.lastElementChild.innerHTML = `Start sector ${player.level}!`
             overlay.lastElementChild.id = 'game-overlay-btn'
             break;
         case'finish':
-            overlay.firstElementChild.innerHTML = `You're a winner baby! You collected all the presents!<br/><br/> You used ${fartCount} farts in total.`
+            overlay.firstElementChild.innerHTML = `You're a winner baby! You collected all the presents!<br/><br/> You used ${player.gas_used} farts in total.`
             overlay.lastElementChild.innerHTML = 'Go to leaderboard';
             overlay.lastElementChild.id = 'game-overlay-btn-complete'
             break;
         case 'lost':
-            overlay.firstElementChild.innerHTML = 'Awwww snap! You ran out of gas. Try to eat more sprouts to keep your gas level up'
+            overlay.firstElementChild.innerHTML = 'Awwww snap! You ran out of farts. Try to eat more sprouts to increase farts'
             overlay.lastElementChild.innerHTML = 'See the Top-Trumpers';
             overlay.lastElementChild.id = 'game-overlay-btn-complete'
             break;
@@ -337,7 +345,7 @@ function showOverlay(type) {
 
 function updateLevelDisplay() {
     let levelNode = document.getElementById('js-level-count')
-    levelNode.innerHTML = `Sector: ${player.level}`
+    levelNode.innerHTML = `Sector:${player.level}`
 
 }
 
@@ -352,6 +360,7 @@ function startNextLevel() {
 function resetPlayer() {
     player.level = 1;
     player.finished = false;
+    player.gas_used = 0;
     createCanvasElements()
     draw()
     showOverlay('re-start')
@@ -360,78 +369,95 @@ function resetPlayer() {
 function checkName(name) {
     if (name.length > 10 || name.length < 2) {
         homeScreenError.innerHTML = 'please enter a name between 2 and 10 characters long'
-        console.log("length", homeScreenError)
         return false
     }
     const regex = /[\/,<,>,{,},/\[,/\],(,),%,&,$,#,/\*,\^,@]/g;
     const matches = name.match(regex);
     if (matches && matches.length) {
-        console.log("chars", matches)
-        homeScreenError.innerHTML = 'No special characters please'+matches.join('')
+        homeScreenError.innerHTML = 'No special characters please' + matches.join('')
         return false
     }
     return true
 }
 
+function touchStart(e) {
+    if (play) {
+        touchX = e.changedTouches[0].pageX - canvasOriginX
+        touchY = e.changedTouches[0].pageY - canvasOriginY
+        let type = ru.setTarget(touchX, touchY)
+
+        if (type === 'long') {
+            let num = Math.floor((Math.random() * 5))
+            farts[num].play()
+        } else {
+            mediumFart.play()
+        }
+    }
+}
+
+function clickStart(e) {
+    if (play) {
+        touchX = e.pageX - canvasOriginX
+        touchY = e.pageY - canvasOriginY
+        let type = ru.setTarget(touchX, touchY)
+
+        if (type === 'long') {
+            let num = Math.floor((Math.random() * 5))
+            farts[num].play()
+        } else {
+            mediumFart.play()
+        }
+    }
+}
 
 window.onload = function () {
-    // getLeaderboard()
-    // console.log("on load")
     loadImages()
     setBackground()
     createCanvasElements()
-    // draw()
     loadAudio()
     ru.updateGasMeter()
     ru.updatePresentCountDisplay()
 
-    // resetButton.addEventListener("click", () => {stopAndReset()});
     wrapper.addEventListener('click', (e) => {
-        // console.log("event:", e)
-        switch (e.target.id) {
-            case 'game-overlay-btn':
-                document.documentElement.requestFullscreen().then(() => {
+        if (e.target.nodeName === 'BUTTON') {
+            switch (e.target.id) {
+                case 'game-overlay-btn':
+                    if (window.screen.width < 500) {
+                        document.documentElement.requestFullscreen().then(() => {
+                            overlay.style.display = 'none';
+                            startNextLevel()
+                            shortFart.play()
+                        })
+                    } else {
+                        overlay.style.display = 'none';
+                        startNextLevel()
+                        shortFart.play()
+                    }
+                    break;
+                case 'game-overlay-btn-complete':
                     overlay.style.display = 'none';
-                    startNextLevel()
+                    gameWrapper.style.display = 'none'
+                    showLeaderboardData()
+                    leaderBoardWrapper.style.display = ''
                     shortFart.play()
-                    jingleBells.play()
-                    jingleBells.loop = true
-
-                })
-                break;
-            case 'game-overlay-btn-complete':
-                overlay.style.display = 'none';
-                gameWrapper.style.display = 'none'
-                showLeaderboardData()
-                leaderBoardWrapper.style.display = ''
-                shortFart.play()
-                jingleBells.pause()
-                break;
-            case 'leaderboard-btn':
-                gameWrapper.style.display = ''
-                leaderBoardWrapper.style.display = 'none'
-                resetPlayer()
-                shortFart.play()
-                break;
+                    jingleBells.pause()
+                    break;
+                case 'leaderboard-btn':
+                    gameWrapper.style.display = ''
+                    leaderBoardWrapper.style.display = 'none'
+                    resetPlayer()
+                    shortFart.play()
+                    break;
+            }
         }
     })
 
     canvas.addEventListener("touchstart", (e) => {
-        if (play) {
-            touchX = e.changedTouches[0].pageX - canvasOriginX
-            touchY = e.changedTouches[0].pageY - canvasOriginY
-            let type = ru.setTarget(touchX, touchY)
-            console.log(type)
+        touchStart(e)
+    });
 
-            if (type === 'long') {
-                let num = Math.floor((Math.random()*5))
-                console.log("number: ", num)
-                farts[num].play()
-            } else {
-                mediumFart.play()
-            }
-            drawTouch()
-        }
+    canvas.addEventListener("click", (e) => {
+        clickStart(e)
     });
 
     // events for getting name data
@@ -441,7 +467,6 @@ window.onload = function () {
         e.preventDefault();
         let formData = new FormData(nameForm);
         if (checkName(formData.get('name'))) {
-            console.log("Name OK")
             player.name = formData.get('name')
             document.getElementById('wrapper-home').style.display = 'none'
             document.getElementById('wrapper-game').style.display = ''

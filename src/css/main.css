@@ -35,7 +35,7 @@ body {
     font-family: "courier new", monospace;
 }
 
-.home-form > h6 {
+.home-form > div >h6 {
     color: red;
     margin-top: 10px
 }
@@ -55,15 +55,17 @@ body {
 .canvas-wrapper {
     display: flex;
     justify-content: center;
+    margin-top: 10px;
 }
 
 .game-top-bar {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-around;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
     padding: 6px;
+    background-color: firebrick;
 }
 
 #game-overlay {
@@ -78,6 +80,10 @@ body {
     text-align: center;
     box-sizing: border-box;
     justify-content: space-evenly;
+}
+
+#game-overlay > h3 {
+    margin: 10px 0;
 }
 
 #game-overlay > h3 {
@@ -101,5 +107,10 @@ th, td {
 }
 
 .btn {
-
+    line-height: 2;
+    padding: 5px 15px;
+    border-radius: 5px;
+    background-color: firebrick;
+    font-size: 16px;
+    font-weight: 600;
 }

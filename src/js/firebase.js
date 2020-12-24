@@ -15,21 +15,17 @@ const db = firebase.firestore();
 export let leaderboardStats = [];
 
 export function getLeaderboard() {
-    console.log("get leaderboard")
     return db.collection("users").orderBy('level', 'desc').orderBy('gas_used').limit(10).get().then((querySnapshot) => {
         leaderboardStats = [];
         querySnapshot.forEach((doc) => {
             leaderboardStats.push(doc.data())
         });
-        console.log("leaderboard retrieved", leaderboardStats)
         return true;
     });
 }
 
 export function savePlayer(player) {
-    console.log("save player")
     return db.collection("users").add(player).then(() => {
-        console.log("player saved")
         return getLeaderboard()
     }).catch((error) => {
         console.error("Error adding document: ", error);
